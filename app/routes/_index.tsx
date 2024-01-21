@@ -17,26 +17,35 @@ export default function Index() {
 
   useEffect(() => {
     setToken(getHash());
-  }, []);
 
-  if (token.length > 0) {
-    fetchWebApi(
-      "v1/me/top/tracks?time_range=short_term&limit=5",
-      "GET",
-      token
-    ).then((response) => {
-      const songIds = response.items.map((song) => {
-        return song.id;
-      });
+    if (token.length > 0) {
       fetchWebApi(
-        `v1/recommendations?limit=5&seed_tracks=${songIds.join(",")}`,
+        "v1/me/top/tracks?time_range=short_term&limit=5",
         "GET",
         token
-      ).then((response) => {
-        setRecommendedSongs(response.tracks);
-      });
-    });
-  }
+      )
+        .then((response) => {
+          const songIds = response.items.map((song: any) => {
+            return song.id;
+          });
+
+          return fetchWebApi(
+            `v1/recommendations?limit=5&seed_tracks=${songIds.join(",")}`,
+            "GET",
+            token
+          );
+        })
+
+        .then((response) => {
+          console.log(response);
+          setRecommendedSongs(response.tracks);
+        })
+
+        .catch((error) => {
+          console.error("Request Error: ", error);
+        });
+    }
+  }, [token]);
 
   return (
     <div className="absolute inset-0">
