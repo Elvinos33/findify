@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Header from "~/components/Header";
 import { fetchWebApi } from "~/lib/FetchSpotify";
 import { getHash } from "~/lib/getHash";
+import AlbumCard from "~/components/AlbumCard";
+import LoginButton from "~/components/LoginButton";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,7 +20,7 @@ export default function Index() {
   useEffect(() => {
     setToken(getHash());
 
-    if (token.length > 0) {
+    if (token.length < 0) {
       fetchWebApi(
         "v1/me/top/tracks?time_range=short_term&limit=5",
         "GET",
@@ -30,7 +32,7 @@ export default function Index() {
           });
 
           return fetchWebApi(
-            `v1/recommendations?limit=5&seed_tracks=${songIds.join(",")}`,
+            `v1/recommendations?limit=100&seed_tracks=${songIds.join(",")}`,
             "GET",
             token
           );
@@ -48,11 +50,22 @@ export default function Index() {
   }, [token]);
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0 flex flex-col">
       <Header token={token} />
-      {recommendedSongs.map((song) => (
-        <p>{song}</p>
-      ))}
+      <div className="flex-1 flex items-center justify-center">
+        {token.length > 0 ? (
+          <div>
+            <AlbumCard />
+          </div>
+        ) : (
+          <div className="flex items-center flex-col gap-6">
+            <p className="w-full text-center font-bold">
+              Please log into a Spotify Premium account to continue.
+            </p>
+            <LoginButton />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
