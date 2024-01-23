@@ -9,7 +9,7 @@ export default function LoginButton() {
 
   return (
     <Link
-      className="btn hover:outline-green-500 hover:outline hover:outline-2"
+      className="btn rounded-full hover:outline-green-500 hover:outline hover:outline-2"
       to={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=user-top-read`}
     >
       <p>Login with Spotify</p>

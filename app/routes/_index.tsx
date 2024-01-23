@@ -5,6 +5,7 @@ import { fetchWebApi } from "~/lib/FetchSpotify";
 import { getHash } from "~/lib/getHash";
 import AlbumCard from "~/components/AlbumCard";
 import LoginButton from "~/components/LoginButton";
+import { LikeButton, DislikeButton, PlayButton } from "~/components/Buttons";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,12 +16,19 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const [token, setToken] = useState("");
-  const [recommendedSongs, setRecommendedSongs] = useState([]);
+  const [recommendedSongs, setRecommendedSongs] = useState([
+    {
+      name: "Loading",
+      albumCover:
+        "https://clipground.com/images/image-placeholder-clipart-1.png",
+      artists: ["Loading"],
+    },
+  ]);
 
   useEffect(() => {
     setToken(getHash());
 
-    if (token.length < 0) {
+    if (token.length > 0) {
       fetchWebApi(
         "v1/me/top/tracks?time_range=short_term&limit=5",
         "GET",
@@ -39,8 +47,17 @@ export default function Index() {
         })
 
         .then((response) => {
-          console.log(response);
-          setRecommendedSongs(response.tracks);
+          const tracks = response.tracks.map((song) => {
+            return {
+              name: song.name,
+              artists: song.artists.map((artist) => {
+                return artist.name;
+              }),
+              albumCover: song.album.images[1].url,
+            };
+          });
+          console.log(tracks);
+          setRecommendedSongs(tracks);
         })
 
         .catch((error) => {
@@ -50,12 +67,23 @@ export default function Index() {
   }, [token]);
 
   return (
-    <div className="absolute inset-0 flex flex-col">
+    <main className="absolute inset-0 flex flex-col overflow-hidden">
       <Header token={token} />
       <div className="flex-1 flex items-center justify-center">
         {token.length > 0 ? (
-          <div>
-            <AlbumCard />
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <DislikeButton />
+              <AlbumCard
+                name={recommendedSongs[0].name}
+                artists={recommendedSongs[0].artists}
+                albumCover={recommendedSongs[0].albumCover}
+              />
+              <LikeButton />
+            </div>
+            <div className="flex w-full space-x-4 items-center justify-center mt-2">
+              <PlayButton />
+            </div>
           </div>
         ) : (
           <div className="flex items-center flex-col gap-6">
@@ -66,6 +94,6 @@ export default function Index() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
