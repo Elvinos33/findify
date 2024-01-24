@@ -61,7 +61,7 @@ export default function AlbumCard(props: AlbumProps) {
         onDrag={handleDrag}
         position={{ x: 0, y: 0 }}
       >
-        <div className="card bg-base-300 shadow-lg space-y-3 p-5 w-[340px] text-clip">
+        <div className="card bg-primary-content shadow-lg space-y-3 p-5 w-[340px] text-clip">
           <figure className="rounded-none">
             <img
               draggable={false}
