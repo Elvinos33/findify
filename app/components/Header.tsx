@@ -1,4 +1,3 @@
-import { Link } from "@remix-run/react";
 import { Icon } from "@iconify/react";
 
 interface HeaderProps {
@@ -6,11 +5,6 @@ interface HeaderProps {
 }
 
 export default function Header(props: HeaderProps) {
-  const CLIENT_ID = "901b9923d3af486787ab5660a9d71058";
-  const REDIRECT_URI = "http://localhost:3000/";
-  const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-  const RESPONSE_TYPE = "token";
-
   return (
     <header className="w-full flex justify-end p-3">
       {props.token.length > 0 && (

@@ -5,6 +5,7 @@ interface AlbumProps {
   name: string;
   artists: Array<any>;
   albumCover: string;
+  swipe: () => void;
 }
 
 export default function AlbumCard(props: AlbumProps) {
@@ -12,6 +13,7 @@ export default function AlbumCard(props: AlbumProps) {
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [likedSongs, setLikedSongs] = useState([]);
+  const [dislikedSongs, setDislikedSongs] = useState([]);
 
   const handleDrag = (e, ui) => {
     const { x, y } = deltaPosition;
@@ -29,9 +31,17 @@ export default function AlbumCard(props: AlbumProps) {
     console.log(likedSongs);
   }, [likedSongs]);
 
+  useEffect(() => {
+    console.log(dislikedSongs);
+  }, [dislikedSongs]);
+
   function handleStop() {
     if (deltaPosition.x >= 150) {
-      setLikedSongs([...likedSongs, props.name]);
+      setLikedSongs([...likedSongs, props]);
+      props.swipe();
+    } else if (deltaPosition.x <= -150) {
+      setDislikedSongs([...dislikedSongs, props]);
+      props.swipe();
     }
 
     setIsDragging(false);
@@ -43,7 +53,6 @@ export default function AlbumCard(props: AlbumProps) {
     <div
       style={{
         transform: `rotate(${rotation}deg)`,
-        transition: !isDragging ? `transform 0.5s ease` : "none",
       }}
     >
       <Draggable
@@ -52,7 +61,7 @@ export default function AlbumCard(props: AlbumProps) {
         onDrag={handleDrag}
         position={{ x: 0, y: 0 }}
       >
-        <div className="card bg-base-200 shadow-xl space-y-3 p-5 w-[340px] text-clip">
+        <div className="card bg-base-300 shadow-lg space-y-3 p-5 w-[340px] text-clip">
           <figure className="rounded-none">
             <img
               draggable={false}
@@ -63,11 +72,10 @@ export default function AlbumCard(props: AlbumProps) {
             />
           </figure>
           <div>
-            <h2 className="card-title">{props.name}</h2>
-            <div className="flex gap-2">
-              {props.artists.map((artist) => (
-                <h3 className="opacity-75">{artist}</h3>
-              ))}
+            <h2 className="card-title line-clamp-1">{props.name}</h2>
+            <div className="flex gap-2 line-clamp-1">
+              <h3 className="opacity-75">{props.artists[0]}</h3>
+              <h3 className="opacity-75">{props.artists[1] || ""}</h3>
             </div>
           </div>
         </div>

@@ -23,7 +23,17 @@ export default function Index() {
         "https://clipground.com/images/image-placeholder-clipart-1.png",
       artists: ["Loading"],
     },
+    {
+      name: "Loading",
+      albumCover:
+        "https://clipground.com/images/image-placeholder-clipart-1.png",
+      artists: ["Loading"],
+    },
   ]);
+
+  function swipe() {
+    setRecommendedSongs((recommendedSongs) => recommendedSongs.slice(1));
+  }
 
   useEffect(() => {
     setToken(getHash());
@@ -74,11 +84,20 @@ export default function Index() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <DislikeButton />
-              <AlbumCard
-                name={recommendedSongs[0].name}
-                artists={recommendedSongs[0].artists}
-                albumCover={recommendedSongs[0].albumCover}
-              />
+              <div className="stack">
+                <AlbumCard
+                  swipe={swipe}
+                  name={recommendedSongs[0].name}
+                  artists={recommendedSongs[0].artists}
+                  albumCover={recommendedSongs[0].albumCover}
+                />
+                <AlbumCard
+                  swipe={swipe}
+                  name={recommendedSongs[1].name}
+                  artists={recommendedSongs[1].artists}
+                  albumCover={recommendedSongs[1].albumCover}
+                />
+              </div>
               <LikeButton />
             </div>
             <div className="flex w-full space-x-4 items-center justify-center mt-2">
@@ -88,7 +107,7 @@ export default function Index() {
         ) : (
           <div className="flex items-center flex-col gap-6">
             <p className="w-full text-center font-bold">
-              Please log into a Spotify Premium account to continue.
+              Please log in with a Spotify Premium account to continue.
             </p>
             <LoginButton />
           </div>
