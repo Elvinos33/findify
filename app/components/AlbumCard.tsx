@@ -1,19 +1,21 @@
 import Draggable from "react-draggable";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface AlbumProps {
+  recommendedSong: recommendedSong;
+  swipe: (direction: string) => void;
+}
+
+type recommendedSong = {
   name: string;
   artists: Array<any>;
   albumCover: string;
-  swipe: () => void;
-}
+};
 
 export default function AlbumCard(props: AlbumProps) {
   const [deltaPosition, setDeltaPosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [likedSongs, setLikedSongs] = useState([]);
-  const [dislikedSongs, setDislikedSongs] = useState([]);
 
   const handleDrag = (e, ui) => {
     const { x, y } = deltaPosition;
@@ -27,21 +29,11 @@ export default function AlbumCard(props: AlbumProps) {
     setIsDragging(true);
   };
 
-  useEffect(() => {
-    console.log(likedSongs);
-  }, [likedSongs]);
-
-  useEffect(() => {
-    console.log(dislikedSongs);
-  }, [dislikedSongs]);
-
   function handleStop() {
     if (deltaPosition.x >= 150) {
-      setLikedSongs([...likedSongs, props]);
-      props.swipe();
+      props.swipe("right");
     } else if (deltaPosition.x <= -150) {
-      setDislikedSongs([...dislikedSongs, props]);
-      props.swipe();
+      props.swipe("left");
     }
 
     setIsDragging(false);
@@ -65,17 +57,21 @@ export default function AlbumCard(props: AlbumProps) {
           <figure className="rounded-none">
             <img
               draggable={false}
-              src={props.albumCover}
+              src={props.recommendedSong.albumCover}
               height={300}
               width={300}
               alt="Currents"
             />
           </figure>
           <div>
-            <h2 className="card-title line-clamp-1">{props.name}</h2>
+            <h2 className="card-title line-clamp-1">
+              {props.recommendedSong.name}
+            </h2>
             <div className="flex gap-2 line-clamp-1">
-              <h3 className="opacity-75">{props.artists[0]}</h3>
-              <h3 className="opacity-75">{props.artists[1] || ""}</h3>
+              <h3 className="opacity-75">{props.recommendedSong.artists[0]}</h3>
+              <h3 className="opacity-75">
+                {props.recommendedSong.artists[1] || ""}
+              </h3>
             </div>
           </div>
         </div>

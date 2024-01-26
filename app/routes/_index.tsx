@@ -1,7 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Header from "~/components/Header";
-import { fetchWebApi } from "~/lib/FetchSpotify";
+import { fetchTopTracks, fetchRecommendations } from "~/lib/FetchSpotify";
 import { getHash } from "~/lib/getHash";
 import AlbumCard from "~/components/AlbumCard";
 import LoginButton from "~/components/LoginButton";
@@ -16,22 +16,33 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const [token, setToken] = useState("");
+  const [likedSongs, setLikedSongs] = useState([]);
+  const [dislikedSongs, setDislikedSongs] = useState([]);
+  const audioRef = useRef(null);
   const [recommendedSongs, setRecommendedSongs] = useState([
     {
       name: "Loading",
       albumCover:
         "https://clipground.com/images/image-placeholder-clipart-1.png",
       artists: ["Loading"],
+      songUrl: "",
     },
     {
       name: "Loading",
       albumCover:
         "https://clipground.com/images/image-placeholder-clipart-1.png",
       artists: ["Loading"],
+      songUrl: "",
     },
   ]);
 
-  function swipe() {
+  function swipe(direction: string) {
+    if (direction === "left") {
+      setDislikedSongs((current) => [...current, recommendedSongs[0]]);
+    } else if (direction === "right") {
+      setLikedSongs((current) => [...current, recommendedSongs[0]]);
+    }
+
     setRecommendedSongs((recommendedSongs) => recommendedSongs.slice(1));
   }
 
@@ -39,42 +50,44 @@ export default function Index() {
     setToken(getHash());
 
     if (token.length > 0) {
-      fetchWebApi(
-        "v1/me/top/tracks?time_range=short_term&limit=5",
-        "GET",
-        token
-      )
+      fetchTopTracks(token)
         .then((response) => {
-          const songIds = response.items.map((song: any) => {
-            return song.id;
-          });
-
-          return fetchWebApi(
-            `v1/recommendations?limit=100&seed_tracks=${songIds.join(",")}`,
-            "GET",
-            token
-          );
+          const songIds = response.items.map((song: any) => song.id);
+          return fetchRecommendations(songIds, token);
         })
-
         .then((response) => {
-          const tracks = response.tracks.map((song) => {
+          const tracks = response.tracks.map((song: any) => {
+            console.log(song);
             return {
               name: song.name,
-              artists: song.artists.map((artist) => {
-                return artist.name;
-              }),
+              artists: song.artists.map((artist: any) => artist.name),
               albumCover: song.album.images[1].url,
+              songUrl: song.preview_url,
             };
           });
-          console.log(tracks);
           setRecommendedSongs(tracks);
         })
-
         .catch((error) => {
           console.error("Request Error: ", error);
         });
     }
   }, [token]);
+
+  useEffect(() => {
+    console.log(
+      "Effect triggered. Current first song URL:",
+      recommendedSongs[0]?.songUrl
+    );
+
+    if (recommendedSongs[0]?.songUrl === null) {
+      console.log("No song URL. Pausing and resetting audio.");
+      audioRef.current.pause();
+    }
+  }, [recommendedSongs]);
+
+  useEffect(() => {
+    console.log(likedSongs);
+  }, [likedSongs]);
 
   return (
     <main className="absolute inset-0 flex flex-col overflow-hidden">
@@ -83,25 +96,36 @@ export default function Index() {
         {token.length > 0 ? (
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <DislikeButton />
+              <audio
+                src={recommendedSongs[0].songUrl}
+                ref={audioRef}
+                autoPlay
+                hidden
+                loop
+              />
+
+              <DislikeButton click={swipe} />
               <div className="stack">
                 <AlbumCard
+                  recommendedSong={recommendedSongs[0]}
                   swipe={swipe}
-                  name={recommendedSongs[0].name}
-                  artists={recommendedSongs[0].artists}
-                  albumCover={recommendedSongs[0].albumCover}
                 />
                 <AlbumCard
+                  recommendedSong={recommendedSongs[1]}
                   swipe={swipe}
-                  name={recommendedSongs[1].name}
-                  artists={recommendedSongs[1].artists}
-                  albumCover={recommendedSongs[1].albumCover}
                 />
               </div>
-              <LikeButton />
+              <LikeButton click={swipe} />
             </div>
             <div className="flex w-full space-x-4 items-center justify-center mt-2">
-              <PlayButton />
+              <PlayButton
+                click={() => {
+                  const audio = audioRef.current;
+                  if (audio) {
+                    audio.paused ? audio.play() : audio.pause();
+                  }
+                }}
+              />
             </div>
           </div>
         ) : (
