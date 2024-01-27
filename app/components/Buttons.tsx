@@ -6,6 +6,7 @@ interface SwipeProps {
 
 interface PlayProps {
   click: () => void;
+  audioRef: React.RefObject<HTMLAudioElement>;
 }
 
 export function DislikeButton(props: SwipeProps) {
@@ -37,12 +38,20 @@ export function LikeButton(props: SwipeProps) {
 }
 
 export function PlayButton(props: PlayProps) {
+  const isPaused =
+    props.audioRef.current != null ? props.audioRef.current.paused : true;
+  console.log(isPaused);
+
   return (
     <button
       onClick={props.click}
       className="btn btn-lg bg-primary-content btn-circle transition duration-[200ms] hover:invert"
     >
-      <Icon icon={"ph:play-fill"} className="text-4xl" />
+      {!isPaused ? (
+        <Icon icon={"ph:pause-fill"} className="text-4xl" />
+      ) : (
+        <Icon icon={"ph:play-fill"} className="text-4xl" />
+      )}
     </button>
   );
 }

@@ -119,6 +119,7 @@ export default function Index() {
             </div>
             <div className="flex w-full space-x-4 items-center justify-center mt-2">
               <PlayButton
+                audioRef={audioRef}
                 click={() => {
                   const audio = audioRef.current;
                   if (audio) {
