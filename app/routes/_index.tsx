@@ -43,7 +43,9 @@ export default function Index() {
       setLikedSongs((current) => [...current, recommendedSongs[0]]);
     }
 
-    setRecommendedSongs((recommendedSongs) => recommendedSongs.slice(1));
+    if (recommendedSongs[0].songUrl !== "") {
+      setRecommendedSongs((recommendedSongs) => recommendedSongs.slice(1));
+    }
   }
 
   useEffect(() => {
