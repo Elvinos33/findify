@@ -1,6 +1,6 @@
 export function getHash() {
   const hash = window.location.hash;
-  let token = "";
+  let token = window.localStorage.getItem("token") || "";
 
   if (!token && hash) {
     token = hash
@@ -8,6 +8,10 @@ export function getHash() {
       .split("&")
       .find((elem) => elem.startsWith("access_token"))
       ?.split("=")[1];
+
+    window.location.hash = "";
+    window.localStorage.setItem("token", token);
   }
+
   return token;
 }
