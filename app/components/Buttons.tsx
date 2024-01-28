@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useEffect, useState } from "react";
 
 interface SwipeProps {
   click: (direction: string) => void;
@@ -38,9 +39,29 @@ export function LikeButton(props: SwipeProps) {
 }
 
 export function PlayButton(props: PlayProps) {
-  const isPaused =
-    props.audioRef.current != null ? props.audioRef.current.paused : true;
-  console.log(isPaused);
+  const [isPaused, setIsPaused] = useState(true);
+
+  useEffect(() => {
+    const audio = props.audioRef.current;
+
+    const handlePlay = () => setIsPaused(false);
+    const handlePause = () => setIsPaused(true);
+
+    if (audio) {
+      audio.addEventListener("play", handlePlay);
+      audio.addEventListener("pause", handlePause);
+
+      // Initial sync with audio's state
+      setIsPaused(audio.paused);
+    }
+
+    return () => {
+      if (audio) {
+        audio.removeEventListener("play", handlePlay);
+        audio.removeEventListener("pause", handlePause);
+      }
+    };
+  }, [props.audioRef]);
 
   return (
     <button

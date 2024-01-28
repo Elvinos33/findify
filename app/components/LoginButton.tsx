@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 
 export default function LoginButton() {
   const CLIENT_ID = "901b9923d3af486787ab5660a9d71058";
-  const REDIRECT_URI = "https://findify.elvin.codes/";
+  const REDIRECT_URI = "http://localhost:3000/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
 

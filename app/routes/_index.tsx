@@ -44,13 +44,36 @@ export default function Index() {
     }
 
     if (recommendedSongs[0].songUrl !== "") {
+      if (recommendedSongs.length <= 5) {
+        fetchTopTracks(token)
+          .then((response) => {
+            const songIds = response.items.map((song: any) => song.id);
+            return fetchRecommendations(songIds, token);
+          })
+          .then((response) => {
+            const tracks = response.tracks.map((song: any) => {
+              return {
+                name: song.name,
+                artists: song.artists.map((artist: any) => artist.name),
+                albumCover: song.album.images[1].url,
+                songUrl: song.preview_url,
+              };
+            });
+            setRecommendedSongs(tracks);
+          })
+          .catch((error) => {
+            console.error("Request Error: ", error);
+          });
+      }
       setRecommendedSongs((recommendedSongs) => recommendedSongs.slice(1));
     }
   }
 
   useEffect(() => {
     setToken(getHash());
+  });
 
+  useEffect(() => {
     if (token.length > 0) {
       fetchTopTracks(token)
         .then((response) => {
@@ -59,7 +82,6 @@ export default function Index() {
         })
         .then((response) => {
           const tracks = response.tracks.map((song: any) => {
-            console.log(song);
             return {
               name: song.name,
               artists: song.artists.map((artist: any) => artist.name),
@@ -76,24 +98,14 @@ export default function Index() {
   }, [token]);
 
   useEffect(() => {
-    console.log(
-      "Effect triggered. Current first song URL:",
-      recommendedSongs[0]?.songUrl
-    );
-
     if (recommendedSongs[0]?.songUrl === null) {
-      console.log("No song URL. Pausing and resetting audio.");
       audioRef.current.pause();
     }
   }, [recommendedSongs]);
 
-  useEffect(() => {
-    console.log(likedSongs);
-  }, [likedSongs]);
-
   return (
     <main className="absolute inset-0 flex flex-col overflow-hidden">
-      <Header token={token} />
+      <Header token={token} setToken={setToken} />
       <div className="flex-1 flex items-center justify-center">
         {token.length > 0 ? (
           <div className="space-y-6">

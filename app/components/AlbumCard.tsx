@@ -30,9 +30,9 @@ export default function AlbumCard(props: AlbumProps) {
   };
 
   function handleStop() {
-    if (deltaPosition.x >= 150) {
+    if (deltaPosition.x >= 100) {
       props.swipe("right");
-    } else if (deltaPosition.x <= -150) {
+    } else if (deltaPosition.x <= -100) {
       props.swipe("left");
     }
 
