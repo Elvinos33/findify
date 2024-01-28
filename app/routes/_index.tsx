@@ -71,9 +71,7 @@ export default function Index() {
 
   useEffect(() => {
     setToken(getHash());
-  });
 
-  useEffect(() => {
     if (token.length > 0) {
       fetchTopTracks(token)
         .then((response) => {
